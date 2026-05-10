@@ -1,1 +1,52 @@
-
+name: "컨테이너 생성 및 코드 실행 요청"
+description: "H200 서버에 코드를 가져와 실행할 컨테이너 배포를 요청합니다."
+title: "[Request]: 코드 실행 및 컨테이너 생성"
+labels: ["provisioning"]
+body:
+  - type: input
+    id: user_id
+    attributes:
+      label: "사용자 ID (Username)"
+      placeholder: " 예: 깃허브아이디"
+    validations:
+      required: true
+  - type: input
+    id: git_repo
+    attributes:
+      label: "실행할 코드의 GitHub 링크"
+      placeholder: "https://github.com/username/repo.git"
+    validations:
+      required: true
+  - type: input
+    id: exec_command
+    attributes:
+      label: "코드 실행 명령어"
+      placeholder: "python main.py 또는 sh run.sh"
+    validations:
+      required: true
+  - type: dropdown
+    id: image_type
+    attributes:
+      label: "사용할 이미지 선택"
+      options:
+        - "pytorch/pytorch:latest"
+        - "tensorflow/tensorflow:latest-gpu"
+    validations:
+      required: true
+  - type: dropdown
+    id: programming_language
+    attributes:
+      label: "사용 언어 (Language)"
+      options:
+        - "Python"
+        - "C/C++"
+        - "R"
+    validations:
+      required: true
+  - type: input
+    id: gpu_mig_count
+    attributes:
+      label: "GPU 할당량 (MIG 갯수)" 
+      placeholder: "예: 1 (H200의 MIG 슬라이스 수)"
+    validations:
+      required: true
