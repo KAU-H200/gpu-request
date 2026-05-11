@@ -101,7 +101,7 @@ def process():
         "language":          language,
         "mig_count":         mig_count_int,
         "issue_number":      issue_number,
-        "github_repository": github_repository
+        "github_repository": github_repository.split('/')[-1]
     }
 
     webhook_url = f"{jenkins_url}/generic-webhook-trigger/invoke?token={jenkins_token}"
