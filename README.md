@@ -1,6 +1,6 @@
 # 🖥️ KAU H200 GPU 사용 요청
 
-> **KAU Drone Business Unit · GPU request**  
+> **KAU Drone Business Unit · GPU Infrastructure**  
 > NVIDIA H200 클러스터에서 코드를 실행하기 위한 공개 요청 레포지토리입니다.
 
 ---
@@ -21,9 +21,9 @@
 
 | 그룹 | 역할 | MIG 슬라이스 최대 | 주요 권한 |
 |------|------|:-----------------:|-----------|
-| **Admins** | 시스템 관리자 | 14개 | 전체 관리 및 설정 |
-| **Maintainers** | 운영 담당자 | 14개 | 이슈 승인 및 파이프라인 제어 |
-| **Developers** | 개발자 | 7개 | 요청서 작성 및 코드 실행 |
+| **Admins** | 시스템 관리자 | 제한 없음 | 전체 관리 및 설정 |
+| **Maintainers** | 운영 담당자 | 7개 | 이슈 승인 및 파이프라인 제어 |
+| **Developers** | 개발자 | 3개 | 요청서 작성 및 코드 실행 |
 | **Guests** | 외부 협력자 | 1개 | 결과 조회 및 제한적 요청 |
 
 > 그룹은 GitHub Organization의 Teams 기능으로 관리됩니다.  
@@ -45,11 +45,58 @@
 |------|------|------|
 | 사용자 ID | 본인의 GitHub Username | `kau-student01` |
 | GitHub 링크 | 실행할 코드 레포지토리 주소 | `https://github.com/username/repo.git` |
-| 실행 명령어 | 코드 시작 명령어 | `pip install --upgrade torch==2.6.0 torchvision && python3 mnist/main.py --epochs 3
-` |
+| 실행 명령어 | 코드 시작 명령어 | `pip install --upgrade torch==2.6.0 torchvision && python main.py` |
 | 사용 이미지 | Docker 이미지 선택 | `pytorch/pytorch:latest` |
 | 사용 언어 | Python / Bash | `Python` |
 | GPU 할당량 | MIG 슬라이스 수 (그룹 한도 내) | `1` |
+
+#### 📦 추가 필요 모듈 작성 방법
+
+기본 이미지(`kau/pytorch-master`, `kau/tensorflow-master`)에 포함되지 않은 패키지가 필요할 경우 작성합니다.  
+
+🐳 kau/pytorch-master 기본 포함 패키지 — 아래는 이미 설치되어 있으므로 입력 불필요
+<table>
+  <thead>
+    <tr><th>패키지</th><th>버전</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>torch</td><td>2.5.1</td></tr>
+    <tr><td>torchvision</td><td>0.20.1</td></tr>
+    <tr><td>vllm</td><td>0.6.6.post1</td></tr>
+    <tr><td>accelerate</td><td>latest</td></tr>
+    <tr><td>transformers</td><td>latest</td></tr>
+    <tr><td>datasets</td><td>latest</td></tr>
+    <tr><td>numpy</td><td>latest</td></tr>
+    <tr><td>pandas</td><td>latest</td></tr>
+    <tr><td>matplotlib</td><td>latest</td></tr>
+    <tr><td>scipy</td><td>latest</td></tr>
+    <tr><td>scikit-learn</td><td>latest</td></tr>
+  </tbody>
+</table>
+🐳 kau/tensorflow-master 기본 포함 패키지 — 아래는 이미 설치되어 있으므로 입력 불필요
+<table>
+  <thead>
+    <tr><th>패키지</th><th>버전</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>tensorflow</td><td>2.17.0</td></tr>
+    <tr><td>numpy</td><td>1.x (2.0 미만)</td></tr>
+    <tr><td>transformers</td><td>latest</td></tr>
+    <tr><td>datasets</td><td>latest</td></tr>
+    <tr><td>pandas</td><td>latest</td></tr>
+    <tr><td>matplotlib</td><td>latest</td></tr>
+    <tr><td>scipy</td><td>latest</td></tr>
+    <tr><td>scikit-learn</td><td>latest</td></tr>
+  </tbody>
+</table>
+
+**작성 규칙**
+
+```
+패키지명만 쓰면 최신 버전 설치       opencv-python
+버전 고정이 필요하면 == 사용         diffusers==0.27.0
+여러 개는 띄어쓰기로 구분            opencv-python diffusers==0.27.0 albumentations
+```
 
 ### Step 3 — 자동 검증 (GitHub Actions)
 이슈 제출 후 약 1분 이내에 자동으로 아래 항목이 검증됩니다.
@@ -75,9 +122,9 @@
 - 📊 학습 로그 및 메트릭 (loss, accuracy 등)
 - 📄 실행 결과 리포트 (`.txt`)
 
-> ⚠️ **결과물만 전달**되며, 컨테이너 내부 환경에는 직접 접근이 불가합니다.
+> ⚠️ **결과물만 전달**되며, 컨테이너 내부 환경에는 직접 접근이 불가합니다.  
+> ⚠️ 실행 결과 리포트는 **최대 65,000자**까지 제공되며, 초과분은 일부 잘리거나 출력되지 않을 수 있습니다.
 
-> GitHub 코멘트 코드까지 도달 못함 → 무통보
 ---
 
 ## ⚠️ 주의사항
@@ -91,7 +138,7 @@
 
 ## 📬 문의
 
-인프라 관련 문의 또는 초대 요청은 항공드론사업단 페이지를 참고하세요.
+인프라 관련 문의 또는 초대 요청은 [항공드론사업단](https://www.aerodrone.ac.kr/ko/) 페이지를 참고하세요.
 
 ---
 
