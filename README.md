@@ -1,6 +1,6 @@
-# 🖥️ KAU H200 GPU 사용 요청
+# 🖥️ 항공드론 H200 GPU 사용 요청
 
-> **KAU Drone Business Unit · GPU Infrastructure**  
+> **Drone Business Unit · GPU Infrastructure**  
 > NVIDIA H200 클러스터에서 코드를 실행하기 위한 공개 요청 레포지토리입니다.
 
 ---
@@ -8,6 +8,7 @@
 ## 📌 이 레포지토리의 목적
 
 이 레포지토리는 **코드 실행 요청서(이슈)만 작성하는 공간**입니다.  
+FaaS 형태의 서비스로 함수로 요청처리를 하도록 자동화 되어있습니다.
 실제 인프라 코드와 GPU 클러스터는 별도의 Private 레포지토리에서 관리되며,  
 요청서를 제출하면 이후 모든 과정은 **자동화 파이프라인이 처리**합니다.
 
@@ -34,7 +35,7 @@
 ## 🚀 사용 절차
 
 ### Step 1 — Organization 초대 수락
-관리자로부터 `KAU-H200` Organization 초대 이메일을 수락합니다.
+관리자로부터 `항공드론 사업단 H200` Organization 초대 이메일을 수락합니다.
 
 ### Step 2 — 이슈 작성
 상단 **Issues** 탭 → **New issue** → **컨테이너 생성 및 코드 실행 요청** 템플릿 선택
@@ -150,5 +151,5 @@
 ---
 
 <div align="center">
-  <sub>KAU Drone Business Unit · H200 GPU Infrastructure</sub>
+  <sub> AeroDrone Business Unit · H200 GPU Infrastructure</sub>
 </div>
