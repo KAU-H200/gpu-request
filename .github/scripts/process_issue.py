@@ -13,6 +13,11 @@ GROUP_LIMITS = {
 
 ORG_NAME = "Aerodrone-H200"
 MAPPING_FILE = "user-mapping.json"
+# ★ 매핑 파일은 실행 레포(gpu-request)가 아니라 gpu-infrastructure 레포에 있다.
+#   레포 이름만 변수로 빼두어 org/파일 위치가 바뀌어도 한 줄만 고치면 되게 함.
+MAPPING_REPO = "gpu-infrastructure"
+MAPPING_BRANCH = "main"
+
 
 def get_user_group_from_teams(username, token):
     headers = {
@@ -31,16 +36,30 @@ def get_user_group_from_teams(username, token):
             continue
     return None
 
-def load_user_mapping():
+
+def load_user_mapping(token):
+    """매핑 파일이 다른 레포(gpu-infrastructure)에 있으므로 GitHub Contents API로 읽어온다.
+
+    - Accept 헤더를 v3.raw 로 주면 base64 디코딩 없이 파일 내용을 그대로 받는다.
+    - private 레포이므로 token 에 해당 레포 읽기 권한(Contents: read)이 있어야 한다.
+    """
+    url = f"https://api.github.com/repos/{ORG_NAME}/{MAPPING_REPO}/contents/{MAPPING_FILE}"
+    headers = {
+        "Authorization": f"token {token}",
+        "Accept": "application/vnd.github.v3.raw",
+    }
+    params = {"ref": MAPPING_BRANCH}
     try:
-        with open(MAPPING_FILE, "r", encoding="utf-8") as f:
-            return json.load(f)
-    except FileNotFoundError:
-        print(f"매핑 파일 없음: {MAPPING_FILE}", flush=True)
-        return {}
+        res = requests.get(url, headers=headers, params=params, timeout=10)
+        if res.status_code == 200:
+            return json.loads(res.text)
+        else:
+            print(f"매핑 파일 로드 실패: HTTP {res.status_code} - {res.text[:200]}", flush=True)
+            return {}
     except Exception as e:
         print(f"매핑 파일 로드 오류: {e}", flush=True)
         return {}
+
 
 def post_comment(issue_num, token, repo, body):
     if not (issue_num and token and repo):
@@ -56,10 +75,12 @@ def post_comment(issue_num, token, repo, body):
     except Exception as e:
         print(f"⚠️ 댓글 작성 중 예외: {e}", flush=True)
 
+
 def fail_process(issue_num, token, repo, msg):
     post_comment(issue_num, token, repo, msg)
     print(msg, flush=True)
     sys.exit(1)
+
 
 def process():
     issue_body        = os.getenv("ISSUE_BODY", "")
@@ -127,13 +148,13 @@ def process():
     post_comment(issue_number, github_token, github_repository,
                  f"✅ **GPU 할당량 확인 완료:** 요청 {mig_count_int} / 그룹 한도 {limit} → 통과!")
 
-    user_mapping = load_user_mapping()
+    user_mapping = load_user_mapping(github_token)
     user_info = user_mapping.get(actual_sender)
 
     if not user_info:
         fail_process(issue_number, github_token, github_repository,
                      f"❌ **신원 매핑 없음:** `{actual_sender}`님의 이름·학번 정보가 등록되어 있지 않습니다.\n"
-                     f"관리자에게 `{MAPPING_FILE}` 에 본인 정보 등록을 요청하세요.")
+                     f"관리자에게 `{MAPPING_REPO}` 레포의 `{MAPPING_FILE}` 에 본인 정보 등록을 요청하세요.")
 
     applicant_name  = user_info.get("name", "")
     applicant_haksa = user_info.get("haksa", "")
@@ -143,7 +164,7 @@ def process():
                      f"❌ **신원 매핑 불완전:** `{actual_sender}`님의 이름 또는 학번 정보가 누락되었습니다.")
 
     post_comment(issue_number, github_token, github_repository,
-                 f"✅ **신원 매칭 완료:** `{actual_sender}` → {applicant_name} ({applicant_haksa})")
+                 "✅ **신원 매칭 완료**")
 
     payload = {
         "user":              requested_user,
@@ -184,6 +205,7 @@ def process():
     except Exception as e:
         fail_process(issue_number, github_token, github_repository,
                      f"❌ **Jenkins 연결 오류:** {str(e)[:200]}\n관리자에게 문의하세요.")
+
 
 if __name__ == "__main__":
     try:
